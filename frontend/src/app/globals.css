@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F6F7F9;
+  --foreground: #1D1D21;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-zoom-blue: #0E72ED;
+  --color-zoom-blue-hover: #0059C6;
+  --color-zoom-dark: #161624;
+  --color-zoom-dark-sidebar: #242435;
+  --color-zoom-dark-card: #1E1E2F;
+  --color-zoom-gray-bg: #F6F7F9;
+  --color-zoom-gray-card: #FFFFFF;
+  --color-zoom-gray-border: #E2E8F0;
+  --color-zoom-text-primary: #1A1A1A;
+  --color-zoom-text-secondary: #747487;
+  --color-zoom-orange: #F26D21;
+  --color-zoom-orange-hover: #D75510;
+
+  /* === Requested CamelCase Color Tokens === */
+  --color-zoomBlue: #0E72ED;
+  --color-zoomDark: #161624;
+  --color-zoomGray: #2F2F3A;
+  --color-zoomLightGray: #F0F0F0;
+  --color-zoomBorder: #3F3F4A;
+  --color-zoomTextPrimary: #FFFFFF;
+  --color-zoomTextSecondary: #B3B3B8;
+  --color-zoomRed: #E61D1D;
+  --color-zoomGreen: #0F9D58;
+  --color-zoomActiveSpeaker: #34A853;
+  --color-hostGold: #F4B400;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbars for a premium polished feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark-glass {
+  background: rgba(30, 30, 47, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+@keyframes equalise {
+  0% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1.0); }
+  100% { transform: scaleY(0.3); }
+}
+
+.animate-eq-bar {
+  animation: equalise 0.8s ease-in-out infinite;
+  transform-origin: bottom;
+}
