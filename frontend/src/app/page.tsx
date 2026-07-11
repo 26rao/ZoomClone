@@ -29,7 +29,8 @@ import {
   joinMeeting,
   Meeting,
   registerUser,
-  loginUser
+  loginUser,
+  getApiUrl
 } from "../lib/api";
 import MeetingInviteModal from "../components/MeetingInviteModal";
 
@@ -83,6 +84,10 @@ export default function Dashboard() {
   const [inviteMeeting, setInviteMeeting] = useState<Meeting | null>(null);
   const [inviteIsScheduled, setInviteIsScheduled] = useState(false);
 
+  // API Connection states
+  const [apiConnectionError, setApiConnectionError] = useState(false);
+  const [customApiUrl, setCustomApiUrl] = useState("");
+
   const [mounted, setMounted] = useState(false);
 
   // Update clock every second
@@ -100,6 +105,7 @@ export default function Dashboard() {
       const storedName = localStorage.getItem("zoom_user_name");
       const storedId = localStorage.getItem("zoom_user_id");
       const storedToken = localStorage.getItem("zoom_auth_token");
+      const storedApiUrl = localStorage.getItem("zoom_api_url");
       if (storedName && storedToken) {
         setUserName(storedName);
         setJoinDisplayName(storedName);
@@ -107,6 +113,11 @@ export default function Dashboard() {
       }
       if (storedId) {
         setUserId(storedId);
+      }
+      if (storedApiUrl) {
+        setCustomApiUrl(storedApiUrl);
+      } else {
+        setCustomApiUrl(process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000");
       }
     }
     loadMeetings();
@@ -170,16 +181,33 @@ export default function Dashboard() {
 
   const loadMeetings = async () => {
     setLoading(true);
+    setApiConnectionError(false);
     try {
       const up = await fetchUpcomingMeetings();
       const rec = await fetchRecentMeetings();
       setUpcoming(up);
       setRecent(rec);
     } catch (e) {
-      toast.error("Failed to load meetings list.");
+      console.error("Connection error loading meetings:", e);
+      setApiConnectionError(true);
+      toast.error("Could not connect to the backend server.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSaveApiUrl = () => {
+    if (!customApiUrl.trim()) return;
+    localStorage.setItem("zoom_api_url", customApiUrl.trim());
+    toast.success("API Endpoint saved! Reconnecting...");
+    loadMeetings();
+  };
+
+  const handleResetApiUrl = () => {
+    localStorage.removeItem("zoom_api_url");
+    setCustomApiUrl(process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000");
+    toast.success("API Endpoint reset to default. Reconnecting...");
+    loadMeetings();
   };
 
   // User edit handlers
@@ -543,6 +571,48 @@ export default function Dashboard() {
 
       {/* 2. Main content area */}
       <main className="flex-1 max-w-7xl mx-auto w-full p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {apiConnectionError && (
+          <div className="lg:col-span-12 bg-red-50 border border-red-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                <Settings className="w-5 h-5 animate-spin" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-bold text-sm text-red-800">Unable to Connect to Backend API</h3>
+                <p className="text-xs text-red-600 leading-relaxed max-w-2xl">
+                  The frontend is unable to reach the backend server. This usually happens if the backend server is offline or if your browser blocks the connection due to Mixed Content constraints (e.g., if the frontend is hosted on HTTPS but defaults to localhost HTTP).
+                </p>
+                <div className="pt-1 flex flex-wrap items-center gap-3">
+                  <span className="text-[10px] font-mono font-bold bg-red-100 text-red-800 px-2 py-0.5 rounded uppercase">
+                    Active URL: {getApiUrl()}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0 w-full md:w-auto">
+              <input
+                type="text"
+                placeholder="Enter Backend API URL (e.g., https://...)"
+                value={customApiUrl}
+                onChange={(e) => setCustomApiUrl(e.target.value)}
+                className="px-3 py-1.5 text-xs rounded-lg border border-red-200 bg-white text-zoom-text-primary focus:outline-none focus:ring-1 focus:ring-red-400 placeholder:text-slate-400 w-full sm:w-64"
+              />
+              <button
+                onClick={handleSaveApiUrl}
+                className="px-4 py-1.5 bg-red-600 text-white rounded-lg font-bold text-xs hover:bg-red-700 transition-colors shadow-sm cursor-pointer whitespace-nowrap text-center"
+              >
+                Connect
+              </button>
+              <button
+                onClick={handleResetApiUrl}
+                className="px-3 py-1.5 border border-red-200 bg-white hover:bg-red-100/55 text-red-800 rounded-lg text-xs font-medium transition-colors cursor-pointer text-center"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
         
         {/* Left Hand: Menu and lists (7 columns) */}
         <section className="lg:col-span-7 flex flex-col gap-8">

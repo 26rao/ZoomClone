@@ -1,4 +1,10 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+export function getApiUrl(): string {
+  if (typeof window !== "undefined") {
+    const override = localStorage.getItem("zoom_api_url");
+    if (override) return override;
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+}
 
 export interface Participant {
   id: number;
@@ -37,7 +43,7 @@ export interface MeetingCreateInput {
 
 export async function fetchUpcomingMeetings(): Promise<Meeting[]> {
   try {
-    const res = await fetch(`${API_URL}/meetings/upcoming`, { cache: "no-store" });
+    const res = await fetch(`${getApiUrl()}/meetings/upcoming`, { cache: "no-store" });
     if (!res.ok) throw new Error("Failed to fetch upcoming meetings");
     return await res.json();
   } catch (error) {
@@ -48,7 +54,7 @@ export async function fetchUpcomingMeetings(): Promise<Meeting[]> {
 
 export async function fetchRecentMeetings(): Promise<Meeting[]> {
   try {
-    const res = await fetch(`${API_URL}/meetings/recent`, { cache: "no-store" });
+    const res = await fetch(`${getApiUrl()}/meetings/recent`, { cache: "no-store" });
     if (!res.ok) throw new Error("Failed to fetch recent meetings");
     return await res.json();
   } catch (error) {
@@ -58,7 +64,7 @@ export async function fetchRecentMeetings(): Promise<Meeting[]> {
 }
 
 export async function createInstantMeeting(input: MeetingCreateInput): Promise<Meeting> {
-  const res = await fetch(`${API_URL}/meetings/instant`, {
+  const res = await fetch(`${getApiUrl()}/meetings/instant`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -71,7 +77,7 @@ export async function createInstantMeeting(input: MeetingCreateInput): Promise<M
 }
 
 export async function scheduleMeeting(input: MeetingCreateInput): Promise<Meeting> {
-  const res = await fetch(`${API_URL}/meetings/schedule`, {
+  const res = await fetch(`${getApiUrl()}/meetings/schedule`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -84,7 +90,7 @@ export async function scheduleMeeting(input: MeetingCreateInput): Promise<Meetin
 }
 
 export async function joinMeeting(meetingId: string, userName: string, userId?: string): Promise<Meeting> {
-  const res = await fetch(`${API_URL}/meetings/join/${meetingId}`, {
+  const res = await fetch(`${getApiUrl()}/meetings/join/${meetingId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ user_name: userName, user_id: userId }),
@@ -97,7 +103,7 @@ export async function joinMeeting(meetingId: string, userName: string, userId?: 
 }
 
 export async function fetchMeetingDetails(meetingId: string): Promise<Meeting> {
-  const res = await fetch(`${API_URL}/meetings/${meetingId}`, { cache: "no-store" });
+  const res = await fetch(`${getApiUrl()}/meetings/${meetingId}`, { cache: "no-store" });
   if (!res.ok) {
     const err = await res.json();
     throw new Error(err.detail || "Failed to fetch meeting details");
@@ -106,7 +112,7 @@ export async function fetchMeetingDetails(meetingId: string): Promise<Meeting> {
 }
 
 export async function removeParticipant(meetingId: string, userName: string): Promise<void> {
-  const res = await fetch(`${API_URL}/meetings/${meetingId}/participants/${encodeURIComponent(userName)}`, {
+  const res = await fetch(`${getApiUrl()}/meetings/${meetingId}/participants/${encodeURIComponent(userName)}`, {
     method: "DELETE",
   });
   if (!res.ok) {
@@ -120,7 +126,7 @@ export interface TokenResponse {
 }
 
 export async function fetchStreamToken(userId: string): Promise<TokenResponse> {
-  const res = await fetch(`${API_URL}/meetings/token`, {
+  const res = await fetch(`${getApiUrl()}/meetings/token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ user_id: userId }),
@@ -140,7 +146,7 @@ export interface AuthResponse {
 }
 
 export async function registerUser(name: string, email: string): Promise<AuthResponse> {
-  const res = await fetch(`${API_URL}/auth/register`, {
+  const res = await fetch(`${getApiUrl()}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, email }),
@@ -153,7 +159,7 @@ export async function registerUser(name: string, email: string): Promise<AuthRes
 }
 
 export async function loginUser(email: string): Promise<AuthResponse> {
-  const res = await fetch(`${API_URL}/auth/login`, {
+  const res = await fetch(`${getApiUrl()}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
@@ -166,7 +172,7 @@ export async function loginUser(email: string): Promise<AuthResponse> {
 }
 
 export async function fetchAuthMe(token: string): Promise<any> {
-  const res = await fetch(`${API_URL}/auth/me`, {
+  const res = await fetch(`${getApiUrl()}/auth/me`, {
     headers: { "Authorization": `Bearer ${token}` },
   });
   if (!res.ok) {
