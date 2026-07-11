@@ -3,6 +3,7 @@
 A high-fidelity Zoom clone featuring a FastAPI (Python) backend and a Next.js (TypeScript/Tailwind CSS) frontend. The application implements full real-time video conferencing utilizing the Stream Video SDK.
 
 ---
+**Live Demo**: [https://zoom-clone-amcvf3dg5-nehas-projects-c2f830a6.vercel.app](https://zoom-clone-amcvf3dg5-nehas-projects-c2f830a6.vercel.app)
 
 ## 🚀 Key Systems
 
